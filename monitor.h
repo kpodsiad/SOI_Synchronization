@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#endif
+
 
 class Semaphore
 {
@@ -82,6 +82,7 @@ private:
 
 class Monitor
 {
+
 public:
 	Monitor() : s(1)
 	{}
@@ -114,5 +115,5 @@ private:
 	Semaphore s;
 };
 
-#endif
 
+#endif
