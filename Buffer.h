@@ -10,7 +10,6 @@ extern const int SIZE;
 #include "monitor.h"
 #include <queue>
 #include <iostream>
-extern bool finished;
 
 class Buffer : public Monitor
 {
@@ -20,17 +19,18 @@ private:
 	static int ID;
 	int bufferID = ID;
 	std::queue<int> q;
+	bool finished = false;
 
 public:
 	Buffer() : Monitor()
 	{
-		++ID;
+		++Buffer::ID;
 	}
 
 	bool add(int &item)
 	{
 		if(!canAdd())
-			wait(full);
+			return false;
 
 		enter();
 		q.push(item);
@@ -43,12 +43,15 @@ public:
 		return true;
 	}
 
-	void consume()
+	bool consume()
 	{
 		enter();
 
 		if(q.empty())
 			wait(empty);
+
+		if( finished && q.empty() )
+			return false;
 
 		auto x = q.front();
 		std::cout<<"Consumer nr: "<<bufferID<<" ";
@@ -59,6 +62,7 @@ public:
 			signal(full);
 
 		leave();
+		return true;
 	}
 
 	bool canAdd()
@@ -69,25 +73,21 @@ public:
 		return canAdd;
 	}
 
-	int getQueueSize() const
-	{
-		return static_cast<int>(q.size());
-	}
-
 	int getID()
 	{
 		return bufferID;
 	}
 
-	const Condition &getEmpty() const
+	void setFinished(bool finished)
 	{
-		return empty;
+		this->finished = finished;
 	}
 
-	const Condition &getFull() const
+	void wakeUpCustomer()
 	{
-		return full;
+		signal(empty);
 	}
+
 };
 
 #endif //MONITORS_BUFFER_H

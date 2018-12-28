@@ -15,7 +15,7 @@ extern const int N;
 class Counter : Monitor
 {
 private:
-	int itemCount = 0;
+	int addedCount = 0;
 	int qCapacity = SIZE;
 	int qAmount = N;
 	Condition full;
@@ -27,12 +27,30 @@ public:
 	void checkIfCanAdd()
 	{
 		enter();
-		if(itemCount >= qCapacity*qAmount)
+
+		if(addedCount >= qCapacity*qAmount)
 		{
 			std::cout<<"Producer is waiting\n";
+			leave();
 			wait(full);
 		}
-		leave();
+		else
+			leave();
+	}
+
+	void wakeUpProducer()
+	{
+		signal(full);
+	}
+
+	void increaseAddedCount()
+	{
+		++addedCount;
+	}
+
+	void decreaseAddedCount()
+	{
+		--addedCount;
 	}
 };
 

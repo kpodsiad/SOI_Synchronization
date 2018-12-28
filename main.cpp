@@ -3,27 +3,29 @@
 const int SIZE = 5;
 const int N = 2;
 
-#include "Buffer.h"
 #include "Producer.h"
 #include "Consumer.h"
 
 int Buffer::ID = 0;
 int Consumer::ID = 0;
-Buffer buffer;
+
+Buffer buffer[2];
+Counter counter;
+
 
 
 void *producerFunction(void*)
 {
 	for (int i = 0; i < 10; ++i)
 	{
-		buffer.add(i);
+		//buffer.add(i);
 	}
 }
 void *consumerFunction(void*)
 {
 	for (int i = 0; i < 10; ++i)
 	{
-		buffer.consume();
+		//buffer.consume();
 	}
 }
 
@@ -36,12 +38,17 @@ int main()
 //	pthread_join(producer, NULL);
 //	pthread_join(consumer, NULL);
 
-	Producer producer{&buffer};
-	Consumer consumer{&buffer};
+	Producer producer{buffer, &counter};
+	Consumer consumer0{buffer, &counter};
+	Consumer consumer1{buffer, &counter};
+
 	producer.start();
-	consumer.start();
+	consumer0.start();
+	consumer1.start();
+
 	producer.join();
-	consumer.join();
+	consumer0.join();
+	consumer1.join();
 
 	return 0;
 }

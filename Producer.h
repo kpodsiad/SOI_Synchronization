@@ -7,7 +7,7 @@
 
 #include <pthread.h>
 #include "Buffer.h"
-#include "ItemCounter.h"
+#include "Counter.h"
 #include "MyThreadClass.h"
 
 extern bool finished;
@@ -20,10 +20,18 @@ private:
 
 	void InternalThreadEntry() override
 	{
+		int ID=0;
 		for (int i = 0; i < 10; ++i)
 		{
-			buffer->add(i);
+			buffer[ID].add(i);
+			buffer[ID+1].add(i);
 		}
+
+		buffer[ID].setFinished(true);
+		buffer[ID+1].setFinished(true);
+
+		buffer[ID].wakeUpCustomer();
+		buffer[ID+1].wakeUpCustomer();
 	}
 
 public:

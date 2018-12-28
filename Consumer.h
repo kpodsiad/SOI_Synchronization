@@ -8,7 +8,7 @@
 #include <iostream>
 #include "MyThreadClass.h"
 #include "Buffer.h"
-#include "ItemCounter.h"
+#include "Counter.h"
 
 extern bool finished;
 
@@ -23,20 +23,19 @@ private:
 protected:
 	void InternalThreadEntry() override
 	{
-		for (int i = 0; i < 10; ++i)
-		{
-			buffer->consume();
-		}
+		while( buffer[myID].consume() );
 	}
 
 public:
 	Consumer(Buffer *buffer, Counter *counter) : buffer(buffer), counter(counter)
 	{
-		++ID;
+		++Consumer::ID;
 	}
 
 	Consumer(Buffer *buffer) : buffer(buffer)
-	{}
+	{
+		++Consumer::ID;
+	}
 
 	void setBuffer(Buffer *buffer)
 	{
