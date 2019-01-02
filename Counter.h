@@ -44,12 +44,16 @@ public:
 
 	void increaseAddedCount()
 	{
+		enter();
 		++addedCount;
+		leave();
 	}
 
 	void decreaseAddedCount()
 	{
+		enter();
 		--addedCount;
+		leave();
 	}
 };
 

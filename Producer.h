@@ -31,17 +31,17 @@ private:
 		for (int i = 0; i < 10; ++i)
 		{
 			counter->checkIfCanAdd();
-			int item = rand()%100;
+			int item = rand()%100; //produce item
 
-			int id = rand()%N;
+			int id = rand()%N; //draw id for adding
 
-			while (!buffer[id].add(item))
+			while (!buffer[id].add(item)) //keep drawing until queue has space for element
 				int id = rand()%N;
 
-			counter->increaseAddedCount();
+			counter->increaseAddedCount(); //increase total elements which are actually storage in queues
 		}
 
-		signalCustomers();
+		signalCustomers(); // wakeup customers when finished producing elements
 	}
 
 	void signalCustomers() const
@@ -73,31 +73,3 @@ public:
 };
 
 #endif //MONITORS_PRODUCER_H
-
-
-//
-//	void *producerFunction(void)
-//	{
-//		for (int i = 0; i < 10; ++i)
-//		{
-//			buffer.tryAdd(i);
-//			usleep(100);
-//		}
-//	}
-//
-//	static void *p(void *context)
-//	{
-//		return ((Producer *)context)->producerFunction();
-//	}
-
-//	static void *hello_helper(void *context)
-//	{
-//		return ((Producer *)context)->hello();
-//	}
-//	void *hello(void)
-//	{
-//		std::cout << "Hello, world!" << std::endl;
-//		int x=6;
-//		buffer.tryAdd(x);
-//		return 0;
-//	}

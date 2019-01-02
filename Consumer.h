@@ -24,7 +24,7 @@ protected:
 	void InternalThreadEntry() override
 	{
 		//sleep(4);
-		while( buffer[myID].consume() )
+		while( buffer[myID].consume() ) //keep doing until producer not finished yet and queue has elements
 		{
 			sleep(1);
 			counter->decreaseAddedCount();

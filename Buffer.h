@@ -5,9 +5,9 @@
 #ifndef MONITORS_BUFFER_H
 #define MONITORS_BUFFER_H
 
-extern const int SIZE;
 
 #include "monitor.h"
+#include "Printer.h"
 #include <deque>
 #include <iostream>
 
@@ -15,17 +15,12 @@ class Buffer : public Monitor
 {
 private:
 	Condition empty, full;
+	Printer *printer = nullptr;
 	int size = SIZE;
 	static int ID;
 	int bufferID = ID;
 	std::deque<int> q;
 	bool finished = false;
-
-	bool checkIfProducerEnded()
-	{
-		if( finished && q.empty() )
-			return false;
-	}
 
 	bool canAdd()
 	{
@@ -43,15 +38,16 @@ public:
 
 	bool add(int &item)
 	{
-		if(!canAdd())
+		if(!canAdd()) //if queue is full
 			return false;
 
 		enter();
 		q.push_front(item);
-		std::cout<<"PRODUCER added item: "<<item<<" to buffer nr: "<<bufferID<<"\n";
-		print();
+//		std::cout<<"PRODUCER added item: "<<item<<" to buffer nr: "<<bufferID<<"\n";
+//		print();
+		printer->print(bufferID, q);
 
-		if(q.size() == 3)
+		if(q.size() == 1)
 			signal(empty);
 
 		leave();
@@ -65,17 +61,15 @@ public:
 		if( finished && q.empty() )
 			return false;
 
-		if(q.empty())
+		if(q.empty()) //wait if the queue is empty
 			wait(empty);
 
 		if( finished && q.empty() )
 			return false;
 
-		auto x = q.front();
-		std::cout<<"CONSUMER nr: "<<bufferID<<" ";
-		std::cout<<"consume: "<<x<<"\n";
 		q.pop_front();
-		print();
+
+		printer->print(bufferID, q);
 
 		if(q.size() == size - 1)
 			signal(full);
@@ -83,6 +77,8 @@ public:
 		leave();
 		return true;
 	}
+
+
 
 	int getID()
 	{
@@ -99,20 +95,10 @@ public:
 		signal(empty);
 	}
 
-	void print()
+	void setPrinter(Printer *printer)
 	{
-		if(q.empty())
-			std::cout<<"Queue nr "<<bufferID<<" is empty\n";
-		else
-		{
-			auto x = q.size();
-			std::cout<<"                                    Queue nr "<<bufferID<<"| elements: ";
-			for(auto elem : q)
-				std::cout<<elem<<",";
-			std::cout<<"\n";
-		}
+		Buffer::printer = printer;
 	}
-
 };
 
 #endif //MONITORS_BUFFER_H

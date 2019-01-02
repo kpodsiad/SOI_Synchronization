@@ -9,13 +9,14 @@ const int N = 5;
 int Buffer::ID = 0;
 int Consumer::ID = 0;
 
-
-
-
 int main()
 {
 	Buffer buffer[N];
 	Counter counter;
+	Printer printer;
+
+	for(auto &elem : buffer)
+		elem.setPrinter(&printer);
 
 	Producer producer{buffer, &counter};
 	Consumer consumer[N];
@@ -27,13 +28,11 @@ int main()
 	}
 
 	producer.start();
-	sleep(5);
+	//sleep(5);
 	for(auto &i : consumer)
 	{
 		i.start();
 	}
-
-
 
 	producer.join();
 	for(auto &i : consumer)
