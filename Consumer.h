@@ -17,13 +17,17 @@ class Consumer : public MyThreadClass
 private:
 	static int ID;
 	int myID = ID;
-	Buffer *buffer;
-	Counter *counter;
+	Buffer *buffer = nullptr;
+	Counter *counter = nullptr;
 
 protected:
 	void InternalThreadEntry() override
 	{
-		while( buffer[myID].consume() );
+		while( buffer[myID].consume() )
+		{
+			counter->decreaseAddedCount();
+			counter->wakeUpProducer();
+		}
 	}
 
 public:
@@ -33,6 +37,11 @@ public:
 	}
 
 	Consumer(Buffer *buffer) : buffer(buffer)
+	{
+		++Consumer::ID;
+	}
+
+	Consumer() : myID(Consumer::ID)
 	{
 		++Consumer::ID;
 	}

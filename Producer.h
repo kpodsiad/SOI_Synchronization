@@ -20,18 +20,28 @@ private:
 
 	void InternalThreadEntry() override
 	{
-		int ID=0;
 		for (int i = 0; i < 10; ++i)
 		{
-			buffer[ID].add(i);
-			buffer[ID+1].add(i);
+			counter->checkIfCanAdd();
+
+			int id = rand()%N;
+
+			while (!buffer[id].add(i))
+				int id = rand()%N;
+
+			counter->increaseAddedCount();
 		}
 
-		buffer[ID].setFinished(true);
-		buffer[ID+1].setFinished(true);
+		signalCustomers();
+	}
 
-		buffer[ID].wakeUpCustomer();
-		buffer[ID+1].wakeUpCustomer();
+	void signalCustomers() const
+	{
+		for(int i=0; i < N; ++i)
+		{
+			buffer[i].setFinished(true);
+			buffer[i].wakeUpCustomer();
+		}
 	}
 
 public:
