@@ -8,7 +8,7 @@
 extern const int SIZE;
 
 #include "monitor.h"
-#include <queue>
+#include <deque>
 #include <iostream>
 
 class Buffer : public Monitor
@@ -18,8 +18,22 @@ private:
 	int size = SIZE;
 	static int ID;
 	int bufferID = ID;
-	std::queue<int> q;
+	std::deque<int> q;
 	bool finished = false;
+
+	bool checkIfProducerEnded()
+	{
+		if( finished && q.empty() )
+			return false;
+	}
+
+	bool canAdd()
+	{
+		enter();
+		bool canAdd = (q.size() < size);
+		leave();
+		return canAdd;
+	}
 
 public:
 	Buffer() : Monitor()
@@ -33,10 +47,11 @@ public:
 			return false;
 
 		enter();
-		q.push(item);
-		std::cout<<"added item: "<<item<<" to buffer nr: "<<bufferID<<"\n";
+		q.push_front(item);
+		std::cout<<"PRODUCER added item: "<<item<<" to buffer nr: "<<bufferID<<"\n";
+		print();
 
-		if(q.size() == 1)
+		if(q.size() == 3)
 			signal(empty);
 
 		leave();
@@ -47,6 +62,9 @@ public:
 	{
 		enter();
 
+		if( finished && q.empty() )
+			return false;
+
 		if(q.empty())
 			wait(empty);
 
@@ -54,23 +72,16 @@ public:
 			return false;
 
 		auto x = q.front();
-		std::cout<<"Consumer nr: "<<bufferID<<" ";
+		std::cout<<"CONSUMER nr: "<<bufferID<<" ";
 		std::cout<<"consume: "<<x<<"\n";
-		q.pop();
+		q.pop_front();
+		print();
 
-		if(q.size() == size -1)
+		if(q.size() == size - 1)
 			signal(full);
 
 		leave();
 		return true;
-	}
-
-	bool canAdd()
-	{
-		enter();
-		bool canAdd = (q.size() < size);
-		leave();
-		return canAdd;
 	}
 
 	int getID()
@@ -86,6 +97,20 @@ public:
 	void wakeUpCustomer()
 	{
 		signal(empty);
+	}
+
+	void print()
+	{
+		if(q.empty())
+			std::cout<<"Queue nr "<<bufferID<<" is empty\n";
+		else
+		{
+			auto x = q.size();
+			std::cout<<"                                    Queue nr "<<bufferID<<"| elements: ";
+			for(auto elem : q)
+				std::cout<<elem<<",";
+			std::cout<<"\n";
+		}
 	}
 
 };

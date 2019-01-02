@@ -23,8 +23,10 @@ private:
 protected:
 	void InternalThreadEntry() override
 	{
+		//sleep(4);
 		while( buffer[myID].consume() )
 		{
+			sleep(1);
 			counter->decreaseAddedCount();
 			counter->wakeUpProducer();
 		}

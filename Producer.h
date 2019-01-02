@@ -10,8 +10,6 @@
 #include "Counter.h"
 #include "MyThreadClass.h"
 
-extern bool finished;
-
 class Producer : public MyThreadClass
 {
 private:
@@ -20,13 +18,24 @@ private:
 
 	void InternalThreadEntry() override
 	{
+
+		for (int j = 0; j < 15 ; ++j)
+		{
+			counter->checkIfCanAdd();
+			int item = rand()%100;
+			int id = j%N;
+			buffer[id].add(item);
+			counter->increaseAddedCount();
+		}
+
 		for (int i = 0; i < 10; ++i)
 		{
 			counter->checkIfCanAdd();
+			int item = rand()%100;
 
 			int id = rand()%N;
 
-			while (!buffer[id].add(i))
+			while (!buffer[id].add(item))
 				int id = rand()%N;
 
 			counter->increaseAddedCount();

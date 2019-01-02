@@ -27,7 +27,6 @@ public:
 	void checkIfCanAdd()
 	{
 		enter();
-
 		if(addedCount >= qCapacity*qAmount)
 		{
 			std::cout<<"Producer is waiting\n";
